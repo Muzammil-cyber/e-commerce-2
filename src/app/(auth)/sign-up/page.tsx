@@ -10,8 +10,11 @@ import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { AuthValidator, FormValues } from "@/lib/validators";
 import { trpc } from "@/trpc/client";
+import { useRouter } from "next/navigation";
 
 export default function SignUpPage() {
+  const router = useRouter();
+
   const {
     register,
     handleSubmit,
@@ -23,6 +26,7 @@ export default function SignUpPage() {
   const onSubmit = ({ email, password }: FormValues) => {
     // send data to server
     mutate({ email, password });
+    router.push("/verify-email?to=" + email);
   };
 
   return (
