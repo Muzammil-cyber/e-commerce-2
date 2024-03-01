@@ -8,3 +8,11 @@ export const AuthValidator = z.object({
 });
 
 export type FormValues = z.infer<typeof AuthValidator>;
+
+export const QueryValidator = z.object({
+    sort: z.enum(['asc', 'desc']).optional(),
+    category: z.string().optional(),
+    limit: z.number().optional(),
+});
+
+export type TQueryValidator = z.infer<typeof QueryValidator>;
