@@ -8,6 +8,10 @@ const nextConfig = {
         port: "3000",
         protocol: "http",
       },
+      {
+        protocol: "https",
+        hostname: "e-commerce-2-taupe.vercel.app",
+      },
     ],
   },
 };
