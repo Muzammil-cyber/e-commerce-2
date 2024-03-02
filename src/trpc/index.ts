@@ -1,50 +1,64 @@
-import { z } from "zod";
-import { authRouter } from "./auth-router";
-import { publicProcedure, router } from "./trpc";
-import { QueryValidator } from "../lib/validators";
-import { getPayloadClient } from "../get-payload";
+import { z } from 'zod'
+import { authRouter } from './auth-router'
+import { publicProcedure, router } from './trpc'
+import { QueryValidator } from '../lib/validators/query-validator'
+import { getPayloadClient } from '../get-payload'
+import { paymentRouter } from './payment-router'
 
-export const appRouter = router(
-    {
-        auth: authRouter,
-        getInfiniteProducts: publicProcedure.input(z.object({
-            limit: z.number().min(1).max(100),
-            cursor: z.number().nullish(),
-            query: QueryValidator
-        })).query(async ({ input }) => {
-            const { cursor, query } = input;
-            const { sort, limit, ...queryOpts } = query
+export const appRouter = router({
+  auth: authRouter,
+  payment: paymentRouter,
 
-            const payload = await getPayloadClient();
+  getInfiniteProducts: publicProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100),
+        cursor: z.number().nullish(),
+        query: QueryValidator,
+      })
+    )
+    .query(async ({ input }) => {
+      const { query, cursor } = input
+      const { sort, limit, ...queryOpts } = query
 
-            const parseQueryOpts: Record<string, { equals: string }> = {}
+      const payload = await getPayloadClient()
 
-            Object.entries(queryOpts).forEach(([key, value]) => {
-                parseQueryOpts[key] = { equals: value }
-            })
+      const parsedQueryOpts: Record<
+        string,
+        { equals: string }
+      > = {}
 
-            const page = cursor || 1;
+      Object.entries(queryOpts).forEach(([key, value]) => {
+        parsedQueryOpts[key] = {
+          equals: value,
+        }
+      })
 
-            const { docs: items, hasNextPage, nextPage } = await payload.find({
-                collection: 'products',
-                where: {
-                    approvedForSale: {
-                        equals: 'approved'
-                    },
-                    ...parseQueryOpts
-                },
-                sort,
-                limit,
-                depth: 1,
-                page,
-            })
+      const page = cursor || 1
 
-            return {
-                items,
-                nextPage: hasNextPage ? nextPage : null
-            }
-        })
-    }
-);
+      const {
+        docs: items,
+        hasNextPage,
+        nextPage,
+      } = await payload.find({
+        collection: 'products',
+        where: {
+          approvedForSale: {
+            equals: 'approved',
+          },
+          ...parsedQueryOpts,
+        },
+        sort,
+        depth: 1,
+        limit,
+        page,
+      })
 
-export type AppRouter = typeof appRouter;
+      return {
+        items,
+        nextPage: hasNextPage ? nextPage : null,
+      }
+    }),
+})
+
+export type AppRouter = typeof appRouter
