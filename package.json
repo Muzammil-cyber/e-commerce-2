@@ -15,8 +15,7 @@
     "lint": "next lint"
   },
   "resolutions": {
-    "cliui": "^7.0.2",
-    "jackspeak": "2.1.1"
+    "cliui": "7.0.2"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",
