@@ -12,6 +12,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "e-commerce-2-taupe.vercel.app",
       },
+      {
+        protocol: "https",
+        hostname: "e-commerce-2-production.up.railway.app",
+      },
     ],
   },
 };
